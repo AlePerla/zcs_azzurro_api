@@ -5,13 +5,16 @@ with open("README.md", "r") as f:
 
 setup(
     name="zcs_azzurro_api",
-    version="0.0.2",
+    version="2023.02.1",
     author="Alessandro Perla",
     author_email="sys.ale.perla@gmail.com",
     description="Unofficial ZCS Azzurro client for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/AlePerla/zcs_azzurro_api",
+    install_requires=[
+        'requests',
+    ],
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
