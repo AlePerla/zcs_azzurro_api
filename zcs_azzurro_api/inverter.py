@@ -9,7 +9,7 @@ from requests.exceptions import HTTPError
 _LOGGER = logging.getLogger(__name__)
 
 
-class ZcsAzzurroInverter:
+class Inverter:
     """Class implementing ZCS Azzurro API for inverters."""
 
     ENDPOINT = "https://third.zcsazzurroportal.com:19003"
@@ -55,9 +55,9 @@ class ZcsAzzurroInverter:
         return: the response from request.
         """
         headers = {
-            ZcsAzzurroApi.AUTH_KEY: ZcsAzzurroApi.AUTH_VALUE,
-            ZcsAzzurroApi.CLIENT_AUTH_KEY: self.client,
-            "Content-Type": ZcsAzzurroApi.CONTENT_TYPE,
+            Inverter.AUTH_KEY: Inverter.AUTH_VALUE,
+            Inverter.CLIENT_AUTH_KEY: self.client,
+            "Content-Type": Inverter.CONTENT_TYPE,
         }
 
         _LOGGER.debug(
@@ -67,10 +67,10 @@ class ZcsAzzurroInverter:
             headers,
         )
         response = requests.post(
-            ZcsAzzurroApi.ENDPOINT,
+            Inverter.ENDPOINT,
             headers=headers,
             json=data,
-            timeout=ZcsAzzurroApi.REQUEST_TIMEOUT,
+            timeout=Inverter.REQUEST_TIMEOUT,
         )
         if response.status_code == 401:
             raise HTTPError(f"{response.status_code}: Authentication Error")
@@ -82,13 +82,13 @@ class ZcsAzzurroInverter:
     ) -> dict:
         """Request realtime data."""
         if not required_values:
-            required_values = [ZcsAzzurroApi.REQUIRED_VALUES_ALL]
+            required_values = [Inverter.REQUIRED_VALUES_ALL]
         data = {
-            ZcsAzzurroApi.REALTIME_DATA_KEY: {
-                ZcsAzzurroApi.COMMAND_KEY: ZcsAzzurroApi.REALTIME_DATA_COMMAND,
-                ZcsAzzurroApi.PARAMS_KEY: {
-                    ZcsAzzurroApi.PARAMS_THING_KEY: self._thing_serial,
-                    ZcsAzzurroApi.PARAMS_REQUIRED_VALUES_KEY: ZcsAzzurroApi.REQUIRED_VALUES_SEP.join(
+            Inverter.REALTIME_DATA_KEY: {
+                Inverter.COMMAND_KEY: Inverter.REALTIME_DATA_COMMAND,
+                Inverter.PARAMS_KEY: {
+                    Inverter.PARAMS_THING_KEY: self._thing_serial,
+                    Inverter.PARAMS_REQUIRED_VALUES_KEY: Inverter.REQUIRED_VALUES_SEP.join(
                         required_values
                     ),
                 },
@@ -97,23 +97,23 @@ class ZcsAzzurroInverter:
         response = self._post_request(data)
         if not response.ok:
             raise ConnectionError(f"Request error: {response.status_code}")
-        response_data: dict[str, Any] = response.json()[ZcsAzzurroApi.REALTIME_DATA_KEY]
+        response_data: dict[str, Any] = response.json()[Inverter.REALTIME_DATA_KEY]
         _LOGGER.debug("fetched realtime data %s", response_data)
-        if not response_data[ZcsAzzurroApi.RESPONSE_SUCCESS_KEY]:
+        if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
             raise ConnectionError("Response did not return correctly")
-        return response_data[ZcsAzzurroApi.PARAMS_KEY][
-            ZcsAzzurroApi.RESPONSE_VALUES_KEY
+        return response_data[Inverter.PARAMS_KEY][
+            Inverter.RESPONSE_VALUES_KEY
         ][0][self._thing_serial]
 
     def alarms_request(self) -> dict:
         """Request alarms."""
-        required_values = [ZcsAzzurroApi.REQUIRED_VALUES_ALL]
+        required_values = [Inverter.REQUIRED_VALUES_ALL]
         data = {
-            ZcsAzzurroApi.DEVICES_ALARMS_KEY: {
-                ZcsAzzurroApi.COMMAND_KEY: ZcsAzzurroApi.DEVICES_ALARMS_COMMAND,
-                ZcsAzzurroApi.PARAMS_KEY: {
-                    ZcsAzzurroApi.PARAMS_THING_KEY: self._thing_serial,
-                    ZcsAzzurroApi.PARAMS_REQUIRED_VALUES_KEY: ZcsAzzurroApi.REQUIRED_VALUES_SEP.join(
+            Inverter.DEVICES_ALARMS_KEY: {
+                Inverter.COMMAND_KEY: Inverter.DEVICES_ALARMS_COMMAND,
+                Inverter.PARAMS_KEY: {
+                    Inverter.PARAMS_THING_KEY: self._thing_serial,
+                    Inverter.PARAMS_REQUIRED_VALUES_KEY: Inverter.REQUIRED_VALUES_SEP.join(
                         required_values
                     ),
                 },
@@ -123,13 +123,13 @@ class ZcsAzzurroInverter:
         if not response.ok:
             raise ConnectionError("Response did not return correctly")
         response_data: dict[str, Any] = response.json()[
-            ZcsAzzurroApi.DEVICES_ALARMS_KEY
+            Inverter.DEVICES_ALARMS_KEY
         ]
         _LOGGER.debug("fetched realtime data %s", response_data)
-        if not response_data[ZcsAzzurroApi.RESPONSE_SUCCESS_KEY]:
+        if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
             raise ConnectionError("Response did not return correctly")
-        return response_data[ZcsAzzurroApi.PARAMS_KEY][
-            ZcsAzzurroApi.RESPONSE_VALUES_KEY
+        return response_data[Inverter.PARAMS_KEY][
+            Inverter.RESPONSE_VALUES_KEY
         ][0][self._thing_serial]
 
     @property
