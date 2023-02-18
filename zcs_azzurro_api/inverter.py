@@ -4,7 +4,8 @@ import logging
 from typing import Any
 
 import requests
-from requests.exceptions import HTTPError
+
+from .errors import DeviceOfflineError, HttpRequestError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ class Inverter:
             timeout=Inverter.REQUEST_TIMEOUT,
         )
         if response.status_code == 401:
-            raise HTTPError(f"{response.status_code}: Authentication Error")
+            raise HttpRequestError(f"{response.status_code}: Authentication Error")
         return response
 
     def realtime_data_request(
@@ -96,11 +97,11 @@ class Inverter:
         }
         response = self._post_request(data)
         if not response.ok:
-            raise ConnectionError(f"Request error: {response.status_code}")
+            raise HttpRequestError(f"Request error: {response.status_code}")
         response_data: dict[str, Any] = response.json()[Inverter.REALTIME_DATA_KEY]
         _LOGGER.debug("fetched realtime data %s", response_data)
         if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
-            raise ConnectionError("Response did not return correctly")
+            raise DeviceOfflineError("Device request did not succeed")
         return response_data[Inverter.PARAMS_KEY][
             Inverter.RESPONSE_VALUES_KEY
         ][0][self._thing_serial]
@@ -121,13 +122,13 @@ class Inverter:
         }
         response = self._post_request(data)
         if not response.ok:
-            raise ConnectionError("Response did not return correctly")
+            raise HttpRequestError("Response did not return correctly")
         response_data: dict[str, Any] = response.json()[
             Inverter.DEVICES_ALARMS_KEY
         ]
         _LOGGER.debug("fetched realtime data %s", response_data)
         if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
-            raise ConnectionError("Response did not return correctly")
+            raise DeviceOfflineError("Device request did not succeed")
         return response_data[Inverter.PARAMS_KEY][
             Inverter.RESPONSE_VALUES_KEY
         ][0][self._thing_serial]
@@ -141,5 +142,5 @@ class Inverter:
         try:
             self.realtime_data_request([])
             return True
-        except ConnectionError:
+        except (HttpRequestError, DeviceOfflineError):
             return False
