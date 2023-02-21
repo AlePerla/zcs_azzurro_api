@@ -74,12 +74,14 @@ class Inverter:
             timeout=Inverter.REQUEST_TIMEOUT,
         )
         if response.status_code == 401:
-            raise HttpRequestError(f"{response.status_code}: Authentication Error")
+            raise HttpRequestError(
+                f"{response.status_code}: Authentication Error",
+                status_code=response.status_code)
         return response
 
     def realtime_data_request(
-        self,
-        required_values: list[str] | None = None,
+            self,
+            required_values: list[str] | None = None,
     ) -> dict:
         """Request realtime data."""
         if not required_values:
@@ -97,7 +99,9 @@ class Inverter:
         }
         response = self._post_request(data)
         if not response.ok:
-            raise HttpRequestError(f"Request error: {response.status_code}")
+            raise HttpRequestError(
+                f"Request error: {response.status_code}",
+                status_code=response.status_code)
         response_data: dict[str, Any] = response.json()[Inverter.REALTIME_DATA_KEY]
         _LOGGER.debug("fetched realtime data %s", response_data)
         if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
@@ -122,7 +126,9 @@ class Inverter:
         }
         response = self._post_request(data)
         if not response.ok:
-            raise HttpRequestError("Response did not return correctly")
+            raise HttpRequestError(
+                "Response did not return correctly",
+                status_code=response.status_code)
         response_data: dict[str, Any] = response.json()[
             Inverter.DEVICES_ALARMS_KEY
         ]
@@ -138,9 +144,6 @@ class Inverter:
         """object identifier."""
         return f"{self.client}_{self._thing_serial}"
 
-    def check_connection(self) -> bool:
-        try:
-            self.realtime_data_request([])
-            return True
-        except (HttpRequestError, DeviceOfflineError):
-            return False
+    def check_connection(self) -> bool | None:
+        self.realtime_data_request([])
+        return True
