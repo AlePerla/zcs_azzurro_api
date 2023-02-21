@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="zcs_azzurro_api",
-    version="2023.02.1",
+    version="2023.2.5",
     author="Alessandro Perla",
     author_email="sys.ale.perla@gmail.com",
     description="Unofficial ZCS Azzurro client for Python",
