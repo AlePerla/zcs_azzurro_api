@@ -12,3 +12,6 @@ It is not guaranteed also the full implementation of all the functions of the AP
 The package could be discontinued at any time and it might be outdated with the APIs, 
 though it will be updated as much as possible.
 You can use it under license conditions and under your responsibility.
+
+Keep this on going >
+<a href="https://paypal.me/aleperla13" target="_blank"><img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" border="0" alt="PayPal Logo" style="height: auto !important;width: auto !important;">Support</a>
