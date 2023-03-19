@@ -9,7 +9,7 @@ from .errors import DeviceOfflineError, HttpRequestError
 
 _LOGGER = logging.getLogger(__name__)
 
-from const import (
+from .const import (
     ENDPOINT,
     AUTH_KEY,
     AUTH_VALUE,
