@@ -9,39 +9,30 @@ from .errors import DeviceOfflineError, HttpRequestError
 
 _LOGGER = logging.getLogger(__name__)
 
+from const import (
+    ENDPOINT,
+    AUTH_KEY,
+    AUTH_VALUE,
+    CLIENT_AUTH_KEY,
+    CONTENT_TYPE,
+    REQUEST_TIMEOUT,
+    REALTIME_DATA_KEY,
+    REALTIME_DATA_COMMAND,
+    DEVICES_ALARMS_KEY,
+    DEVICES_ALARMS_COMMAND,
+    COMMAND_KEY,
+    PARAMS_KEY,
+    PARAMS_THING_KEY,
+    PARAMS_REQUIRED_VALUES_KEY,
+    RESPONSE_SUCCESS_KEY,
+    RESPONSE_VALUES_KEY,
+    REQUIRED_VALUES_ALL,
+    REQUIRED_VALUES_SEP
+)
+
 
 class Inverter:
     """Class implementing ZCS Azzurro API for inverters."""
-
-    ENDPOINT = "https://third.zcsazzurroportal.com:19003"
-    AUTH_KEY = "Authorization"
-    AUTH_VALUE = "Zcs eHWAeEq0aYO0"
-    CLIENT_AUTH_KEY = "client"
-    CONTENT_TYPE = "application/json"
-    REQUEST_TIMEOUT = 5
-
-    HISTORIC_DATA_KEY = "historicData"
-    HISTORIC_DATA_COMMAND = "historicData"
-
-    REALTIME_DATA_KEY = "realtimeData"
-    REALTIME_DATA_COMMAND = "realtimeData"
-
-    DEVICES_ALARMS_KEY = "deviceAlarm"
-    DEVICES_ALARMS_COMMAND = "deviceAlarm"
-
-    COMMAND_KEY = "command"
-    PARAMS_KEY = "params"
-    PARAMS_THING_KEY = "thingKey"
-    PARAMS_REQUIRED_VALUES_KEY = "requiredValues"
-    PARAMS_START_KEY = "start"
-    PARAMS_END_KEY = "end"
-
-    RESPONSE_SUCCESS_KEY = "success"
-    RESPONSE_VALUES_KEY = "value"
-
-    # Values of required values
-    REQUIRED_VALUES_ALL = "*"
-    REQUIRED_VALUES_SEP = ","
 
     def __init__(self, client: str, thing_serial: str, name: str | None = None) -> None:
         """Class initialization."""
@@ -56,9 +47,9 @@ class Inverter:
         return: the response from request.
         """
         headers = {
-            Inverter.AUTH_KEY: Inverter.AUTH_VALUE,
-            Inverter.CLIENT_AUTH_KEY: self.client,
-            "Content-Type": Inverter.CONTENT_TYPE,
+            AUTH_KEY: AUTH_VALUE,
+            CLIENT_AUTH_KEY: self.client,
+            "Content-Type": CONTENT_TYPE,
         }
 
         _LOGGER.debug(
@@ -68,10 +59,10 @@ class Inverter:
             headers,
         )
         response = requests.post(
-            Inverter.ENDPOINT,
+            ENDPOINT,
             headers=headers,
             json=data,
-            timeout=Inverter.REQUEST_TIMEOUT,
+            timeout=REQUEST_TIMEOUT,
         )
         if response.status_code == 401:
             raise HttpRequestError(
@@ -85,13 +76,13 @@ class Inverter:
     ) -> dict:
         """Request realtime data."""
         if not required_values:
-            required_values = [Inverter.REQUIRED_VALUES_ALL]
+            required_values = [REQUIRED_VALUES_ALL]
         data = {
-            Inverter.REALTIME_DATA_KEY: {
-                Inverter.COMMAND_KEY: Inverter.REALTIME_DATA_COMMAND,
-                Inverter.PARAMS_KEY: {
-                    Inverter.PARAMS_THING_KEY: self._thing_serial,
-                    Inverter.PARAMS_REQUIRED_VALUES_KEY: Inverter.REQUIRED_VALUES_SEP.join(
+            REALTIME_DATA_KEY: {
+                COMMAND_KEY: REALTIME_DATA_COMMAND,
+                PARAMS_KEY: {
+                    PARAMS_THING_KEY: self._thing_serial,
+                    PARAMS_REQUIRED_VALUES_KEY: REQUIRED_VALUES_SEP.join(
                         required_values
                     ),
                 },
@@ -102,23 +93,23 @@ class Inverter:
             raise HttpRequestError(
                 f"Request error: {response.status_code}",
                 status_code=response.status_code)
-        response_data: dict[str, Any] = response.json()[Inverter.REALTIME_DATA_KEY]
+        response_data: dict[str, Any] = response.json()[REALTIME_DATA_KEY]
         _LOGGER.debug("fetched realtime data %s", response_data)
-        if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
+        if not response_data[RESPONSE_SUCCESS_KEY]:
             raise DeviceOfflineError("Device request did not succeed")
-        return response_data[Inverter.PARAMS_KEY][
-            Inverter.RESPONSE_VALUES_KEY
+        return response_data[PARAMS_KEY][
+            RESPONSE_VALUES_KEY
         ][0][self._thing_serial]
 
     def alarms_request(self) -> dict:
         """Request alarms."""
-        required_values = [Inverter.REQUIRED_VALUES_ALL]
+        required_values = [REQUIRED_VALUES_ALL]
         data = {
-            Inverter.DEVICES_ALARMS_KEY: {
-                Inverter.COMMAND_KEY: Inverter.DEVICES_ALARMS_COMMAND,
-                Inverter.PARAMS_KEY: {
-                    Inverter.PARAMS_THING_KEY: self._thing_serial,
-                    Inverter.PARAMS_REQUIRED_VALUES_KEY: Inverter.REQUIRED_VALUES_SEP.join(
+            DEVICES_ALARMS_KEY: {
+                COMMAND_KEY: DEVICES_ALARMS_COMMAND,
+                PARAMS_KEY: {
+                    PARAMS_THING_KEY: self._thing_serial,
+                    PARAMS_REQUIRED_VALUES_KEY: REQUIRED_VALUES_SEP.join(
                         required_values
                     ),
                 },
@@ -130,13 +121,13 @@ class Inverter:
                 "Response did not return correctly",
                 status_code=response.status_code)
         response_data: dict[str, Any] = response.json()[
-            Inverter.DEVICES_ALARMS_KEY
+            DEVICES_ALARMS_KEY
         ]
         _LOGGER.debug("fetched realtime data %s", response_data)
-        if not response_data[Inverter.RESPONSE_SUCCESS_KEY]:
+        if not response_data[RESPONSE_SUCCESS_KEY]:
             raise DeviceOfflineError("Device request did not succeed")
-        return response_data[Inverter.PARAMS_KEY][
-            Inverter.RESPONSE_VALUES_KEY
+        return response_data[PARAMS_KEY][
+            RESPONSE_VALUES_KEY
         ][0][self._thing_serial]
 
     @property
