@@ -1,3 +1,4 @@
+![ZCS Azzurro API image](https://github.com/AlePerla/zcs_azzurro_api/blob/main/icon.png?raw=true "ZCS Azzurro API logo")
 # ZCS Azzurro client for Python
 The unofficial python client for ZCS Azzurro API.
 
